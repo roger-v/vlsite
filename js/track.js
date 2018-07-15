@@ -2,6 +2,7 @@ var PAGE_LIMIT = 20;
 var API_PATH_TOKEN = "http://site.vintage-logistics.com:81/IMEXWEBREPSAPI/token";
 var API_PATH_FL = "http://site.vintage-logistics.com:81/IMEXWEBREPSAPI/api/FMS/GetDashboard";
 var isLoading = false;
+var shipments_array;
 
 //Encodes client request username and password from JSON to x-www-form-urlencoded
 function JSON_to_URLEncoded(element,key,list){
@@ -27,7 +28,7 @@ function setCookie(name,value,days) {
 function getCookie(name) {
     var nameEQ = name + "=";
     var ca = document.cookie.split(';');
-    for(var i=0;i < ca.length;i++) {
+    for(let i=0;i < ca.length;i++) {
         var c = ca[i];
         while (c.charAt(0)==' ') c = c.substring(1,c.length);
         if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
@@ -46,7 +47,6 @@ function cookieExists(name){
 // Sends the request to the IMEXWEB API for login, and sets access_token cookie
 // so that the browser remembers to stay logged in on this site.
 function getAccessToken(email, password) {
-  console.log("retrieving access token...");
   startLoadingAnimation();
   var dat = {
           "grant_type":"password",
@@ -66,7 +66,6 @@ function getAccessToken(email, password) {
           stopLoadingAnimation();
         },
         error: function(jqxhr, status, error) {
-          console.log("error");
           simulateLogout();
           if (status == "timeout") {
             showLoginError("The server timed out.");
@@ -83,7 +82,6 @@ function getAccessToken(email, password) {
 //Sends the request to IMEXWEB API to retrieve freight load data, using access_token cookie.
 //page=1 shows the first PAGE_LIMIT elements, page=2 shows the second PAGE_LIMIT elements, etc...
 function getFreightLoads(page) {
-  console.log("getting freight loads for page: "+ page);
   startLoadingAnimation();
   if (getCookie("access_token") == null) return;
   $.ajax({
@@ -96,11 +94,11 @@ function getFreightLoads(page) {
       },
       processData: false,
       success: function(data) {
+        shipments_array = data.Results;
         (data.Results[0] != null) ? setCookie("username", data.Results[0].Customer, 7) : "";
-        var customer = getCookie("username") == null ? "My " : getCookie("username") + "'s "
+        var customer = !cookieExists("username") ? "My " : getCookie("username") + "'s "
         $("#heading").html(customer + " Shipments (total: " + data.Count + ")");
-        console.log("displaying table now...");
-        displayFreightLoads(data.Results, page, data.Count);
+        displayFreightLoads(shipments_array, page, data.Count);
         stopLoadingAnimation();
       },
       error: function(jqxhr) {
@@ -116,7 +114,7 @@ function getFreightLoads(page) {
 function displayFreightLoads(freightLoads, page, totalLoads){
   var offset = (page - 1)*PAGE_LIMIT;
   var rval = "";
-  for (var i = offset; i < freightLoads.length && i < offset + PAGE_LIMIT; i++)
+  for (let i = offset; i < freightLoads.length && i < offset + PAGE_LIMIT; i++)
     rval += getRowHTML(freightLoads[i], i);
   $("tbody").html(rval);
   var totalPages = Math.ceil(totalLoads/PAGE_LIMIT);
@@ -125,24 +123,9 @@ function displayFreightLoads(freightLoads, page, totalLoads){
 
 //Returns the content for one <tr> tag for one freight load.
 function getRowHTML(row, index){
-  var arr = [
-    row.OrderNo, 
-    row.TrafficNo, 
-    row.CustomerRef, 
-    row.Carrier, 
-    row.PickupAt,
-    row.Shipper, 
-    formatDate(row.PickupDt), 
-    row.DeliveryAt, 
-    row.Consignee, 
-    formatDate(row.DeliveryDt), 
-    row.Status, 
-    row.EquipmentNo, 
-    row.InvoiceNo, 
-    row.Oid
-  ];
+  var arr = getRowFieldsAsArray(row);
   var rval = "<tr><th scope=\"row\">" + (index + 1).toString() + "</th>";
-  for (var i = 0; i < arr.length; i++){
+  for (let i = 0; i < arr.length; i++){
     rval += ("<td>" + ((arr[i] == null) ? "" : arr[i]) + "</td>");
   }
   return rval;
@@ -177,7 +160,7 @@ function generatePaginationNav(current_page, pages) {
   if (current_page > 1) {
     li_divs += ('<li class="page-item"><a class="page-link" onclick="getFreightLoads(' + (current_page - 1) + ')">Previous</a></li>');
   }
-  for (var i = Math.max(1, current_page - 3); i < current_page + 4 && i <= pages; i++){
+  for (let i = Math.max(1, current_page - 3); i < current_page + 4 && i <= pages; i++){
     li_divs += ('<li class="page-item' + (i == current_page ? " active " : "") + '"><a class="page-link" onclick="getFreightLoads(' + i + ')">' + i + '</a></li>');
   }
   if (current_page < pages) {
@@ -213,7 +196,7 @@ function trackOneVin(vinNumber) {
 
 //Sets the status text for the requested single vin.
 function displayStatus(vinNumber, shipments){
-  for (var i = 0; i < shipments.length; i++){
+  for (let i = 0; i < shipments.length; i++){
     if (shipments[i].TrafficNo == vinNumber) {
       var single_array = [ shipments[i] ];
       var textclass;
@@ -250,13 +233,11 @@ function single_tracker_submit() {
 }
 
 function startLoadingAnimation() {
-    console.log("starting loading animation");
     $(".loader").show();
     isLoading = true;
 }
 
 function stopLoadingAnimation() {
-    console.log("stopping loading animation");
     $(".loader").hide();
     isLoading = false;
 }
@@ -269,7 +250,41 @@ function showLoginError(message) {
 function dateTodayStr() {
   var dateObj = new Date();
   var str = dateObj.getFullYear() + "-" + (dateObj.getMonth()+1) + "-" + dateObj.getDate(); 
-  console.log("date: " + str);
   return str;
-
 }
+
+function getRowFieldsAsArray(row) {
+  return [
+    row.OrderNo, 
+    row.TrafficNo, 
+    row.CustomerRef, 
+    row.Carrier, 
+    row.PickupAt,
+    row.Shipper, 
+    formatDate(row.PickupDt), 
+    row.DeliveryAt, 
+    row.Consignee, 
+    formatDate(row.DeliveryDt), 
+    row.Status, 
+    row.EquipmentNo, 
+    row.InvoiceNo, 
+    row.Oid
+    ];
+}
+
+//convert to csv
+
+/*
+
+function downloadCSV(){
+  if (shipments_array == null) return;
+  var filename = "vins-" + dateTodayStr();
+  let csvContent = "data:text/csv;charset=utf-8,";
+  for (let i = 0; i < shipments_array.length; i++){
+    let fields = getRowFieldsAsArray(shipments_array[i]);
+    let fieldsCommaSeparated = fields.join(",");
+    csvContent += fieldsCommaSeparated + "\r\n";
+  }
+  window.open(encodeURI(csvContent));
+}
+*/
