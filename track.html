@@ -75,6 +75,7 @@ layout: default
         <form class="form-inline" id="single_tracker_field">
           <input type="text" name="vinNumber" id="vinNumber" class="m-2 form-control " placeholder="Type a Vin Number" />
           <input type="button" value="Track" id="single_tracker_submit" class="m-2 hoverglow form-control btn btn-primary" />
+          <input type="button" value="Show all" id="show_all_button" class="m-2 hoverglow form-control btn btn-warning" />
           <label id="vinStatus" class="font-weight-bold"></label>
         </form>
       </div>
@@ -163,5 +164,12 @@ layout: default
   
   $("#export").click(function() {
     downloadCSV();
+  });
+  
+  $("#show_all_button").hide();
+  $("#show_all_button").click(function(){
+    setPage(lastPage);
+    $("#show_all_button").hide();
+    setStatusText("", "");
   });
 </script>
