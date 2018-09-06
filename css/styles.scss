@@ -3,7 +3,7 @@
 
 /*Color from original site is rgb(77,116, 163)*/
 html, body {
-  background: #17315b;
+  background: rgb(14,29,52) /*#17315b*/;
   margin:0;
   padding:0;
 }
@@ -95,6 +95,10 @@ a:hover {
   background-color: rgb(14,29,52);
 }
 
+.bg-mednavy {
+  background-color: rgb(21, 44, 79);
+}
+
 .bg-darknavygradient { /* FF3.6-15 */
 /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#0e1d34+8,0e1d34+100&1+43,0.57+94 */
 background: -moz-linear-gradient(top, rgba(14,29,52,1) 8%, rgba(14,29,52,1) 43%, rgba(14,29,52,0.57) 94%, rgba(14,29,52,0.57) 100%); /* FF3.6-15 */
@@ -163,7 +167,7 @@ bg-red {
 }
 
 .navbar {
-  border-bottom: 1px solid rgb(77,116,163);
+  border-bottom: 1px solid #888;
 }
 
 .hoverscale:hover {
@@ -266,4 +270,18 @@ input.btn-danger[type="submit"]:focus {
 .fakelink {
   color: #0645AD;
   cursor: pointer;
+}
+
+.bg-radialgradient-white {
+  
+  background-image: radial_gradient(rgba(255,255,255,1.0), rgba(0,0,0,0));
+  
+}
+
+.bg-black {
+  background: black;
+}
+
+.bg-medgray {
+  background: #222;
 }
