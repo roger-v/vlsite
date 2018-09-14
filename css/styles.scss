@@ -99,6 +99,14 @@ a:hover {
   background-color: rgb(21, 44, 79);
 }
 
+.bg-stars {
+  background-image: linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url("../assets/stars.jpg");
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover; /* Resize the background image to cover the entire container */
+
+}
+
 .bg-darknavygradient { /* FF3.6-15 */
 /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#0e1d34+8,0e1d34+100&1+43,0.57+94 */
 background: -moz-linear-gradient(top, rgba(14,29,52,1) 8%, rgba(14,29,52,1) 43%, rgba(14,29,52,0.57) 94%, rgba(14,29,52,0.57) 100%); /* FF3.6-15 */
@@ -123,7 +131,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#910e1d34', e
   background-color: rgb(77,116,163);
 }
 
-bg-red {
+.bg-red {
   background-color: red;
 }
 
@@ -284,4 +292,8 @@ input.btn-danger[type="submit"]:focus {
 
 .bg-medgray {
   background: #222;
+}
+
+.text-shadow {
+  text-shadow: 2px 2px 5px black;
 }
